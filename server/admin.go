@@ -54,3 +54,16 @@ func adminDetailHandler(c *fiber.Ctx) error {
 		"pager":  pager,
 	})
 }
+
+func adminUpdateHandler(c *fiber.Ctx) error {
+	code := c.Params("code")
+	link := c.FormValue("link")
+	if link == "" {
+		return c.Status(fiber.StatusBadRequest).Render("status", fiber.Map{"code": "400", "message": "link is required"})
+	}
+	err := service.UpdateLink(code, link)
+	if err != nil {
+		return err
+	}
+	return c.SendStatus(fiber.StatusOK)
+}

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YaShortener</title>
-    <script src="/public/alpine.js" defer></script>
     <style>
         :root {
             --primary-color: #4a6cf7;
@@ -95,42 +94,46 @@
         }
     </style>
 </head>
-<body x-data="data()">
+<body>
     <div class="container">
         <h1>YaShortener</h1>
         <div class="form-group">
-            <input type="url" name="url" placeholder="Enter URL to shorten" x-model="url">
-            <input type="text" name="code" placeholder="Enter custom code (optional)" x-model="code">
-            <button @click="doShorten">Shorten URL</button>
+            <input type="url" name="url" id="urlInput" placeholder="Enter URL to shorten">
+            <input type="text" name="code" id="codeInput" placeholder="Enter custom code (optional)">
+            <button id="shortenBtn">Shorten URL</button>
         </div>
-        <div class="result" x-text="result" x-bind:class="{ 'success': isSuccess }"></div>
+        <div class="result" id="resultArea"></div>
         <div class="footer">
             <p>A simple and fast URL shortener service</p>
         </div>
     </div>
     <script>
-        function data(){
-            return {
-                url: "",
-                code: "",
-                result:"",
-                isSuccess: false,
-                doShorten: function(){
-                    let formData = new FormData();
-                    formData.append("url", this.url);
-                    formData.append("code", this.code);
-                    fetch("/create", {
-                        method: "POST",
-                        body: formData,
-                    }).then((res) => {
-                        return res.text();
-                    }).then((text) => {
-                        this.result = text;
-                        this.isSuccess = text.includes("http");
-                    });
-                },
-            }
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlInput = document.getElementById('urlInput');
+            const codeInput = document.getElementById('codeInput');
+            const shortenBtn = document.getElementById('shortenBtn');
+            const resultArea = document.getElementById('resultArea');
+            
+            shortenBtn.addEventListener('click', function() {
+                let formData = new FormData();
+                formData.append("url", urlInput.value);
+                formData.append("code", codeInput.value);
+                
+                fetch("/create", {
+                    method: "POST",
+                    body: formData,
+                }).then((res) => {
+                    return res.text();
+                }).then((text) => {
+                    resultArea.textContent = text;
+                    if (text.includes("http")) {
+                        resultArea.classList.add('success');
+                    } else {
+                        resultArea.classList.remove('success');
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

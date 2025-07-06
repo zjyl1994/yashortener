@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/zjyl1994/yashortener/infra/model"
@@ -13,13 +14,13 @@ import (
 
 func CreateLink(code, link string) (string, error) {
 	var m model.Link
-	m.Link = link
+	m.Link = strings.TrimSpace(link)
 	m.CreateAt = time.Now().Unix()
 
 	shortLen := 5
 	for {
 		if code != "" {
-			m.Code = code
+			m.Code = strings.TrimSpace(code)
 		} else {
 			m.Code = utils.RandChars(shortLen)
 		}
@@ -35,6 +36,10 @@ func CreateLink(code, link string) (string, error) {
 		}
 		shortLen++
 	}
+}
+
+func UpdateLink(code, link string) error {
+	return vars.DB.Model(&model.Link{}).Where("code = ?", strings.TrimSpace(code)).Update("link", link).Error
 }
 
 func GetLink(code string) (*model.Link, error) {

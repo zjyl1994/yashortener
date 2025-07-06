@@ -29,6 +29,7 @@ func Run(listen string) error {
 	admin.Post("/create", createHandler(true))
 	admin.Get("/:code", adminDetailHandler)
 	admin.Delete("/:code", adminDeleteHandler)
+	admin.Put("/:code", adminUpdateHandler)
 
 	app.Static("/public", "./web/public")
 	app.Get("/", indexHandler)

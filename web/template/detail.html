@@ -74,6 +74,62 @@
             border: 1px solid #ddd;
             word-break: break-all;
         }
+        
+        /* 模态对话框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 500px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .modal-header h3 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: var(--dark-color);
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
 
         .stats-container {
             display: grid;
@@ -242,7 +298,7 @@
         <div class="pagination">
             {{ $pageSize := .pager.Size}}
             {{if .pager.Prev}}
-            <a href="?page={{.pager.Prev}}&size={{$pageSize}}">&laquo; 上一页</a>
+            <a href="?page={{.pager.Prev}}&size={{$pageSize}}">&laquo; Prev</a>
             {{end}}
             {{range .pager.List}}
             {{if eq $.page .}}
@@ -252,24 +308,50 @@
             {{end}}
             {{end}}
             {{if .pager.Next}}
-            <a href="?page={{.pager.Next}}&size={{$pageSize}}">下一页 &raquo;</a>
+            <a href="?page={{.pager.Next}}&size={{$pageSize}}">Next &raquo;</a>
             {{end}}
         </div>
 
         <div class="actions">
-             <button class="button" onclick="onDelete('{{.link.Code}}')">Delete</button>
-            <a href="/admin" class="button secondary">Admin</a>
+            <button class="button" onclick="openEditModal()">Edit</button>
+            <button class="button" onclick="onDelete('{{.link.Code}}')">Delete</button>
+            <a href="/admin" class="button secondary">Back</a>
         </div>
 
         <div class="footer">
             <p>Powered by YaShortener</p>
         </div>
     </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Link</h3>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="detail-item">
+                    <span class="detail-label">Short Code</span>
+                    <div class="detail-value">{{.link.Code}}</div>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Original URL</span>
+                    <input type="url" id="editLinkInput" class="detail-value" style="padding: 10px;" value="{{.link.Link}}">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="button secondary" onclick="closeEditModal()">Cancel</button>
+                <button class="button" onclick="updateLink('{{.link.Code}}')">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.querySelectorAll("[data-timestamp]").forEach((element) => {
             const timestamp = element.getAttribute("data-timestamp");
             element.textContent = new Date(parseInt(timestamp) * 1000).toLocaleString();
         });
+
         function onDelete(code) {
             if (confirm('Are you sure to delete?')) {
                 fetch('/admin/' + code, {
@@ -279,6 +361,47 @@
                 });
             }
         }
+
+        function openEditModal() {
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function updateLink(code) {
+            const newLink = document.getElementById('editLinkInput').value;
+            if (!newLink) {
+                alert('URL cannot be empty');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('link', newLink);
+
+            fetch('/admin/' + code, {
+                method: 'PUT',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    alert('Link updated successfully');
+                    window.location.reload();
+                } else {
+                    alert('Failed to update link');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the link');
+            });
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        };
     </script>
 </body>
 
