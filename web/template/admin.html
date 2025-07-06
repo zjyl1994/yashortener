@@ -117,7 +117,7 @@
         <div class="pagination">
            {{ $pageSize := .pager.Size}}  
            {{if .pager.Prev}}
-           <a href="?page={{.pager.Prev}}&size={{$pageSize}}">&laquo; 上一页</a>
+           <a href="?page={{.pager.Prev}}&size={{$pageSize}}">&laquo; Prev</a>
            {{end}}
            {{range .pager.List}}
            {{if eq $.page .}}
@@ -127,7 +127,7 @@
            {{end}}
            {{end}}
            {{if .pager.Next}}
-           <a href="?page={{.pager.Next}}&size={{$pageSize}}">下一页 &raquo;</a>
+           <a href="?page={{.pager.Next}}&size={{$pageSize}}">Next &raquo;</a>
            {{end}}
         </div>
         <div class="footer">

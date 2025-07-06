@@ -23,8 +23,8 @@ func createHandler(fromAdmin bool) func(*fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).SendString("url is required")
 		}
 
-		url := c.FormValue("url")
-		code := c.FormValue("code")
+		url := strings.TrimSpace(c.FormValue("url"))
+		code := strings.TrimSpace(c.FormValue("code"))
 		short, err := service.CreateLink(code, url)
 		if err != nil {
 			return err

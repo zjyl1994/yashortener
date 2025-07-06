@@ -141,6 +141,61 @@
             font-size: 14px;
             color: #777;
         }
+        
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* 分页样式 */
+        .pagination {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .pagination a {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-decoration: none;
+            color: var(--dark-color);
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .pagination a:hover {
+            background-color: var(--primary-hover);
+            color: white;
+            border-color: var(--primary-hover);
+        }
+        
+        .pagination .current {
+            padding: 8px 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: 1px solid var(--primary-color);
+            border-radius: 4px;
+        }
     </style>
 </head>
 
@@ -151,65 +206,80 @@
         <div class="detail-card">
             <div class="detail-item">
                 <span class="detail-label">Short Code</span>
-                <div class="detail-value">{{.Code}}</div>
+                <div class="detail-value">{{.link.Code}}</div>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Original URL</span>
-                <div class="detail-value">{{.URL}}</div>
+                <div class="detail-value">{{.link.Link}}</div>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Created At</span>
-                <div class="detail-value">{{.CreatedAt}}</div>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">Short URL</span>
-                <div class="detail-value">{{.ShortURL}}</div>
+                <div class="detail-value" data-timestamp="{{.link.CreateAt}}"></div>
             </div>
         </div>
 
-        <div class="container">
-            <h2>Visit History</h2>
+        <h2 style="color: var(--primary-color); margin: 30px 0 15px 0; text-align: center;">Visit History</h2>
+        <div class="detail-card">
             <table>
-                <tr>
-                    <th>IP</th>
-                    <th>UserAgent</th>
-                    <th>Visited At</th>
-                </tr>
-                {{range .Visits}}
-                <tr>
-                    <td>{{.IP}}</td>
-                    <td>{{.UserAgent}}</td>
-                    <td>{{.CreateAt}}</td>
-                </tr>
-                {{end}}
+                <thead>
+                    <tr>
+                        <th>IP</th>
+                        <th>UserAgent</th>
+                        <th>Visited At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .access}}
+                    <tr>
+                        <td>{{.IP}}</td>
+                        <td>{{.UserAgent}}</td>
+                        <td data-timestamp="{{.CreateAt}}"></td>
+                    </tr>
+                    {{end}}
+                </tbody>
             </table>
-            <div class="pagination">
-                {{ $pageSize := .pager.Size}}
-                {{if .pager.Prev}}
-                <a href="?page={{.pager.Prev}}&size={{$pageSize}}">&laquo; 上一页</a>
-                {{end}}
-                {{range .pager.List}}
-                {{if eq $.page .}}
-                <span class="current">{{.}}</span>
-                {{else}}
-                <a href="?page={{.}}&size={{$pageSize}}">{{.}}</a>
-                {{end}}
-                {{end}}
-                {{if .pager.Next}}
-                <a href="?page={{.pager.Next}}&size={{$pageSize}}">下一页 &raquo;</a>
-                {{end}}
-            </div>
+        </div>
+        <div class="pagination">
+            {{ $pageSize := .pager.Size}}
+            {{if .pager.Prev}}
+            <a href="?page={{.pager.Prev}}&size={{$pageSize}}">&laquo; 上一页</a>
+            {{end}}
+            {{range .pager.List}}
+            {{if eq $.page .}}
+            <span class="current">{{.}}</span>
+            {{else}}
+            <a href="?page={{.}}&size={{$pageSize}}">{{.}}</a>
+            {{end}}
+            {{end}}
+            {{if .pager.Next}}
+            <a href="?page={{.pager.Next}}&size={{$pageSize}}">下一页 &raquo;</a>
+            {{end}}
         </div>
 
         <div class="actions">
-            <a href="/" class="button">返回首页</a>
-            <a href="/admin" class="button secondary">管理面板</a>
+             <button class="button" onclick="onDelete('{{.link.Code}}')">Delete</button>
+            <a href="/admin" class="button secondary">Admin</a>
         </div>
 
         <div class="footer">
             <p>Powered by YaShortener</p>
         </div>
     </div>
+    <script>
+        document.querySelectorAll("[data-timestamp]").forEach((element) => {
+            const timestamp = element.getAttribute("data-timestamp");
+            element.textContent = new Date(parseInt(timestamp) * 1000).toLocaleString();
+        });
+        function onDelete(code) {
+            if (confirm('Are you sure to delete?')) {
+                fetch('/admin/' + code, {
+                    method: 'DELETE'
+                }).then(() => {
+                    window.location.href = '/admin';
+                });
+            }
+        }
+    </script>
 </body>
 
 </html>
