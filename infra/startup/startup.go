@@ -11,6 +11,7 @@ import (
 	"github.com/zjyl1994/yashortener/infra/utils"
 	"github.com/zjyl1994/yashortener/infra/vars"
 	"github.com/zjyl1994/yashortener/server"
+	"github.com/zjyl1994/yashortener/web"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -26,6 +27,18 @@ func Start() (err error) {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 	vars.AnonymousCreate, _ = strconv.ParseBool(os.Getenv("YASHORT_ANONYMOUS_CREATE"))
+
+	_, err = os.Stat("./web")
+	if err != nil {
+		if os.IsNotExist(err) {
+			err = utils.ExtractDataTo(web.EMFS, "./web")
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
 
 	vars.DB, err = gorm.Open(sqlite.Open(vars.DBPath), &gorm.Config{
 		Logger:         gorm_logrus.New(),
