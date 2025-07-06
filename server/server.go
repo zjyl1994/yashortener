@@ -9,13 +9,14 @@ import (
 
 func Run(listen string) error {
 	engine := html.New("./web/template", ".html")
+	if vars.DebugMode {
+		engine.Reload(true)
+	}
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 		Views:                 engine,
 	})
-	app.Get("/", indexHandler)
-	app.Get("/:code", processHandler)
-	app.Post("/create", createHandler)
+
 	admin := app.Group("/admin")
 	if vars.AdminUser != "" || vars.AdminPass != "" {
 		admin.Use(basicauth.New(basicauth.Config{
@@ -25,7 +26,13 @@ func Run(listen string) error {
 		}))
 	}
 	admin.Get("/", adminIndexHandler)
+	admin.Post("/create", createHandler(true))
 	admin.Get("/:code", adminDetailHandler)
 	admin.Delete("/:code", adminDeleteHandler)
+
+	app.Static("/public", "./web/public")
+	app.Get("/", indexHandler)
+	app.Get("/:code", processHandler)
+	app.Post("/create", createHandler(false))
 	return app.Listen(listen)
 }

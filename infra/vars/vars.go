@@ -10,6 +10,7 @@ var (
 	AdminUser string
 	AdminPass string
 
-	DB        *gorm.DB
-	DebugMode bool
+	DB              *gorm.DB
+	DebugMode       bool
+	AnonymousCreate bool
 )

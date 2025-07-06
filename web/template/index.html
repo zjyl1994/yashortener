@@ -4,8 +4,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YaShortener</title>
+    <script src="/public/alpine.js" defer></script>
+    <style>
+        :root {
+            --primary-color: #4a6cf7;
+            --primary-hover: #3a5ce4;
+            --dark-color: #333;
+            --light-color: #f4f7ff;
+            --success-color: #28a745;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+        }
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+            margin-bottom: 15px;
+        }
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            word-break: break-all;
+            font-size: 16px;
+        }
+        .result.success {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid #c3e6cb;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
 </head>
-<body>
-    
+<body x-data="data()">
+    <div class="container">
+        <h1>YaShortener</h1>
+        <div class="form-group">
+            <input type="url" name="url" placeholder="Enter URL to shorten" x-model="url">
+            <input type="text" name="code" placeholder="Enter custom code (optional)" x-model="code">
+            <button @click="doShorten">Shorten URL</button>
+        </div>
+        <div class="result" x-text="result" x-bind:class="{ 'success': isSuccess }"></div>
+        <div class="footer">
+            <p>A simple and fast URL shortener service</p>
+        </div>
+    </div>
+    <script>
+        function data(){
+            return {
+                url: "",
+                code: "",
+                result:"",
+                isSuccess: false,
+                doShorten: function(){
+                    let formData = new FormData();
+                    formData.append("url", this.url);
+                    formData.append("code", this.code);
+                    fetch("/create", {
+                        method: "POST",
+                        body: formData,
+                    }).then((res) => {
+                        return res.text();
+                    }).then((text) => {
+                        this.result = text;
+                        this.isSuccess = text.includes("http");
+                    });
+                },
+            }
+        }
+    </script>
 </body>
 </html>

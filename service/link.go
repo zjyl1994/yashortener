@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/zjyl1994/yashortener/infra/model"
@@ -11,10 +12,12 @@ import (
 )
 
 func CreateLink(code, link string) (string, error) {
+	var m model.Link
+	m.Link = link
+	m.CreateAt = time.Now().Unix()
+
 	shortLen := 5
 	for {
-		var m model.Link
-		m.Link = link
 		if code != "" {
 			m.Code = code
 		} else {
@@ -26,6 +29,9 @@ func CreateLink(code, link string) (string, error) {
 		}
 		if !errors.Is(err, gorm.ErrDuplicatedKey) {
 			return "", err
+		}
+		if code != "" {
+			return "", fmt.Errorf("duplicate code %s", code)
 		}
 		shortLen++
 	}

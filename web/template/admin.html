@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YaShortener Admin</title>
+    <style>
+        :root {
+            --primary-color: #4a6cf7;
+            --primary-hover: #3a5ce4;
+            --dark-color: #333;
+            --light-color: #f4f7ff;
+            --success-color: #28a745;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .pagination {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .pagination a {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-decoration: none;
+            color: var(--dark-color);
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .pagination a:hover {
+            background-color: var(--primary-hover);
+            color: white;
+            border-color: var(--primary-hover);
+        }
+        .pagination .current {
+            padding: 8px 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: 1px solid var(--primary-color);
+            border-radius: 4px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>YaShortener Admin</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>URL</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .links}}
+                <tr>
+                    <td><a href="/admin/{{.Code}}">{{.Code}}</a></td>
+                    <td>{{.Link}}</td>
+                    <td data-timestamp="{{.CreateAt}}"></td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        <div class="pagination">
+           {{ $pageSize := .pager.Size}}  
+           {{if .pager.Prev}}
+           <a href="?page={{.pager.Prev}}&size={{$pageSize}}">&laquo; 上一页</a>
+           {{end}}
+           {{range .pager.List}}
+           {{if eq $.page .}}
+           <span class="current">{{.}}</span>
+           {{else}}
+           <a href="?page={{.}}&size={{$pageSize}}">{{.}}</a>
+           {{end}}
+           {{end}}
+           {{if .pager.Next}}
+           <a href="?page={{.pager.Next}}&size={{$pageSize}}">下一页 &raquo;</a>
+           {{end}}
+        </div>
+        <div class="footer">
+            <p>YaShortener Admin Panel</p>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll("[data-timestamp]").forEach((element) => {
+            const timestamp = element.getAttribute("data-timestamp");
+            element.textContent = new Date(parseInt(timestamp) * 1000).toLocaleString();
+        });
+    </script>
+</body>
+
+</html>

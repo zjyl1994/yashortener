@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/zjyl1994/yashortener/infra/utils"
 	"github.com/zjyl1994/yashortener/service"
 )
 
@@ -13,9 +14,11 @@ func adminIndexHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	pager := utils.CalcPage(page, pageSize, count)
+	//logrus.Debugln("pager", utils.ToJson(pager))
 	return c.Render("admin", fiber.Map{
 		"links": links,
-		"count": count,
+		"pager": pager,
 	})
 }
 
@@ -36,13 +39,18 @@ func adminDetailHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	if link == nil {
+		return c.Status(fiber.StatusNotFound).Render("status", fiber.Map{"code": "404", "message": "link not found"})
+	}
 	access, count, err := service.ListAccessRecord(link.ID, page, pageSize)
 	if err != nil {
 		return err
 	}
+	pager := utils.CalcPage(page, pageSize, count)
+	//logrus.Debugln("pager", utils.ToJson(pager))
 	return c.Render("detail", fiber.Map{
 		"link":   link,
-		"count":  count,
 		"access": access,
+		"pager":  pager,
 	})
 }

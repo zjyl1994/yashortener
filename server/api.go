@@ -13,20 +13,30 @@ func indexHandler(c *fiber.Ctx) error {
 	return c.Render("index", fiber.Map{})
 }
 
-func createHandler(c *fiber.Ctx) error {
-	url := c.FormValue("url")
-	code := c.FormValue("code")
-	short, err := service.CreateLink(code, url)
-	if err != nil {
-		return err
-	}
+func createHandler(fromAdmin bool) func(*fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		if !vars.AnonymousCreate && !fromAdmin {
+			return c.Status(fiber.StatusForbidden).SendString("anonymous create disabled")
+		}
 
-	baseUrl := vars.BaseURL
-	if baseUrl == "" {
-		baseUrl = c.BaseURL()
+		if c.FormValue("url") == "" {
+			return c.Status(fiber.StatusBadRequest).SendString("url is required")
+		}
+
+		url := c.FormValue("url")
+		code := c.FormValue("code")
+		short, err := service.CreateLink(code, url)
+		if err != nil {
+			return err
+		}
+
+		baseUrl := vars.BaseURL
+		if baseUrl == "" {
+			baseUrl = c.BaseURL()
+		}
+		link := strings.TrimSuffix(baseUrl, "/") + "/" + short
+		return c.SendString(link)
 	}
-	link := strings.TrimSuffix(baseUrl, "/") + short
-	return c.SendString(link)
 }
 
 func processHandler(c *fiber.Ctx) error {
@@ -36,7 +46,7 @@ func processHandler(c *fiber.Ctx) error {
 		return err
 	}
 	if link == nil {
-		return c.Status(fiber.StatusNotFound).SendString("link not found")
+		return c.Status(fiber.StatusNotFound).Render("status", fiber.Map{"code": "404", "message": "link not found"})
 	}
 	err = service.RecordAccess(link.ID, c.IP(), c.Get(fiber.HeaderUserAgent))
 	if err != nil {

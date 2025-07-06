@@ -25,6 +25,7 @@ func Start() (err error) {
 	if vars.DebugMode {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
+	vars.AnonymousCreate, _ = strconv.ParseBool(os.Getenv("YASHORT_ANONYMOUS_CREATE"))
 
 	vars.DB, err = gorm.Open(sqlite.Open(vars.DBPath), &gorm.Config{
 		Logger:         gorm_logrus.New(),
