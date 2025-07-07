@@ -272,6 +272,11 @@
                 <span class="detail-label">Created At</span>
                 <div class="detail-value" data-timestamp="{{.link.CreateAt}}"></div>
             </div>
+            <div class="actions">
+                <button class="button" onclick="openEditModal()">Edit</button>
+                <button class="button" onclick="onDelete('{{.link.Code}}')">Delete</button>
+                <a href="/admin" class="button secondary">Back</a>
+            </div>
         </div>
 
         <h2 style="color: var(--primary-color); margin: 30px 0 15px 0; text-align: center;">Visit History</h2>
@@ -313,11 +318,7 @@
             {{end}}
         </div>
 
-        <div class="actions">
-            <button class="button" onclick="openEditModal()">Edit</button>
-            <button class="button" onclick="onDelete('{{.link.Code}}')">Delete</button>
-            <a href="/admin" class="button secondary">Back</a>
-        </div>
+
 
         <div class="footer">
             <p>Powered by YaShortener</p>
