@@ -184,6 +184,14 @@
         .button.secondary:hover {
             background-color: #5a6268;
         }
+        
+        .button.danger {
+            background-color: #dc3545;
+        }
+
+        .button.danger:hover {
+            background-color: #c82333;
+        }
 
         .actions {
             display: flex;
@@ -274,7 +282,7 @@
             </div>
             <div class="actions">
                 <button class="button" onclick="openEditModal()">Edit</button>
-                <button class="button" onclick="onDelete('{{.link.Code}}')">Delete</button>
+                <button class="button danger" onclick="onDelete('{{.link.Code}}')">Delete</button>
                 <a href="/admin" class="button secondary">Back</a>
             </div>
         </div>
