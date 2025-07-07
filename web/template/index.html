@@ -92,6 +92,9 @@
             font-size: 14px;
             color: #777;
         }
+        #resultArea{
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -126,6 +129,7 @@
                     return res.text();
                 }).then((text) => {
                     resultArea.textContent = text;
+                    resultArea.style.display = 'block';
                     if (text.includes("http")) {
                         resultArea.classList.add('success');
                     } else {

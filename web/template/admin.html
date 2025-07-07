@@ -13,18 +13,21 @@
             --light-color: #f4f7ff;
             --success-color: #28a745;
         }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         body {
             background-color: var(--light-color);
             color: var(--dark-color);
             line-height: 1.6;
             padding: 20px;
         }
+
         .container {
             width: 100%;
             max-width: 1000px;
@@ -33,30 +36,91 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             padding: 30px;
             margin: 0 auto;
+            text-align: center;
         }
+
         h1 {
             color: var(--primary-color);
             margin-bottom: 20px;
             text-align: center;
+            font-size: 2.5rem;
         }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+            margin-bottom: 15px;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            word-break: break-all;
+            font-size: 16px;
+        }
+
+        .result.success {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid #c3e6cb;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            margin-top: 20px;
         }
-        th, td {
+
+        th,
+        td {
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
+
         th {
             background-color: var(--primary-color);
             color: white;
             font-weight: 600;
         }
+
         tr:hover {
             background-color: #f8f9fa;
         }
+
         .pagination {
             display: flex;
             gap: 8px;
@@ -64,6 +128,7 @@
             justify-content: center;
             margin: 20px 0;
         }
+
         .pagination a {
             padding: 8px 12px;
             border: 1px solid #ddd;
@@ -72,11 +137,13 @@
             border-radius: 4px;
             transition: all 0.3s;
         }
+
         .pagination a:hover {
             background-color: var(--primary-hover);
             color: white;
             border-color: var(--primary-hover);
         }
+
         .pagination .current {
             padding: 8px 12px;
             background-color: var(--primary-color);
@@ -84,11 +151,17 @@
             border: 1px solid var(--primary-color);
             border-radius: 4px;
         }
+
         .footer {
             text-align: center;
             margin-top: 30px;
             font-size: 14px;
             color: #777;
+        }
+
+        #resultArea {
+            margin-bottom: 30px;
+            display: none;
         }
     </style>
 </head>
@@ -96,6 +169,12 @@
 <body>
     <div class="container">
         <h1>YaShortener Admin</h1>
+        <div class="form-group">
+            <input type="url" name="url" id="urlInput" placeholder="Enter URL to shorten">
+            <input type="text" name="code" id="codeInput" placeholder="Enter custom code (optional)">
+            <button id="shortenBtn">Shorten URL</button>
+        </div>
+        <div class="result" id="resultArea"></div>
         <table>
             <thead>
                 <tr>
@@ -115,20 +194,20 @@
             </tbody>
         </table>
         <div class="pagination">
-           {{ $pageSize := .pager.Size}}  
-           {{if .pager.Prev}}
-           <a href="?page={{.pager.Prev}}&size={{$pageSize}}">&laquo; Prev</a>
-           {{end}}
-           {{range .pager.List}}
-           {{if eq $.page .}}
-           <span class="current">{{.}}</span>
-           {{else}}
-           <a href="?page={{.}}&size={{$pageSize}}">{{.}}</a>
-           {{end}}
-           {{end}}
-           {{if .pager.Next}}
-           <a href="?page={{.pager.Next}}&size={{$pageSize}}">Next &raquo;</a>
-           {{end}}
+            {{ $pageSize := .pager.Size}}
+            {{if .pager.Prev}}
+            <a href="?page={{.pager.Prev}}&size={{$pageSize}}">&laquo; Prev</a>
+            {{end}}
+            {{range .pager.List}}
+            {{if eq $.page .}}
+            <span class="current">{{.}}</span>
+            {{else}}
+            <a href="?page={{.}}&size={{$pageSize}}">{{.}}</a>
+            {{end}}
+            {{end}}
+            {{if .pager.Next}}
+            <a href="?page={{.pager.Next}}&size={{$pageSize}}">Next &raquo;</a>
+            {{end}}
         </div>
         <div class="footer">
             <p>YaShortener Admin Panel</p>
@@ -138,6 +217,34 @@
         document.querySelectorAll("[data-timestamp]").forEach((element) => {
             const timestamp = element.getAttribute("data-timestamp");
             element.textContent = new Date(parseInt(timestamp) * 1000).toLocaleString();
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlInput = document.getElementById('urlInput');
+            const codeInput = document.getElementById('codeInput');
+            const shortenBtn = document.getElementById('shortenBtn');
+            const resultArea = document.getElementById('resultArea');
+
+            shortenBtn.addEventListener('click', function () {
+                let formData = new FormData();
+                formData.append("url", urlInput.value);
+                formData.append("code", codeInput.value);
+
+                fetch("/admin/create", {
+                    method: "POST",
+                    body: formData,
+                }).then((res) => {
+                    return res.text();
+                }).then((text) => {
+                    resultArea.textContent = text;
+                    resultArea.style.display = 'block';
+                    if (text.includes("http")) {
+                        resultArea.classList.add('success');
+                    } else {
+                        resultArea.classList.remove('success');
+                    }
+                });
+            });
         });
     </script>
 </body>
