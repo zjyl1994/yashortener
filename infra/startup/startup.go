@@ -20,8 +20,8 @@ func Start() (err error) {
 	vars.ListenAddr = utils.Coalesce(os.Getenv("YASHORT_LISTEN"), ":19278")
 	vars.BaseURL = os.Getenv("YASHORT_BASE_URL")
 	vars.DBPath = utils.Coalesce(os.Getenv("YASHORT_DB_PATH"), "./yashortener.db")
-	vars.AdminUser = utils.Coalesce(os.Getenv("YASHORT_ADMIN_USER"), "admin")
-	vars.AdminPass = utils.Coalesce(os.Getenv("YASHORT_ADMIN_PASS"), "pass")
+	vars.AdminUser = os.Getenv("YASHORT_ADMIN_USER")
+	vars.AdminPass = os.Getenv("YASHORT_ADMIN_PASS")
 	vars.DebugMode, _ = strconv.ParseBool(os.Getenv("YASHORT_DEBUG"))
 	if vars.DebugMode {
 		logrus.SetLevel(logrus.DebugLevel)

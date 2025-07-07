@@ -2,8 +2,8 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/rand"
-	"strconv"
 	"strings"
 )
 
@@ -30,41 +30,35 @@ type PageMeta struct {
 	Prev string
 	Next string
 	Size string
+	Page string
 	List []string
 }
 
 func CalcPage(page, size int, total int64) PageMeta {
-	var result PageMeta
-	totalPage := total / int64(size)
-	if total%int64(size) > 0 {
-		totalPage++
+	var meta PageMeta
+	meta.Size = fmt.Sprintf("%d", size)
+	meta.Page = fmt.Sprintf("%d", page)
+
+	totalPages := int(total+int64(size)-1) / size // Calculate total pages
+	if totalPages == 0 {
+		totalPages = 1
 	}
-	result.Size = strconv.Itoa(size)
+
 	if page > 1 {
-		result.Prev = strconv.Itoa(page - 1)
+		meta.Prev = fmt.Sprintf("%d", page-1)
 	}
-	if page < int(totalPage) {
-		result.Next = strconv.Itoa(page + 1)
+	if page < totalPages {
+		meta.Next = fmt.Sprintf("%d", page+1)
 	}
-	for i := 1; i <= int(totalPage); i++ {
-		start := page - 2
-		end := page + 2
-		if start < 1 {
-			start = 1
-			end = 5
-		}
-		if end > int(totalPage) {
-			end = int(totalPage)
-			start = end - 4
-			if start < 1 {
-				start = 1
-			}
-		}
-		for j := start; j <= end; j++ {
-			result.List = append(result.List, strconv.Itoa(j))
-		}
+
+	startPage := max(1, min(page-2, totalPages-4))
+	endPage := min(startPage+4, totalPages)
+
+	for i := startPage; i <= endPage; i++ {
+		meta.List = append(meta.List, fmt.Sprintf("%d", i))
 	}
-	return result
+
+	return meta
 }
 
 func ToJson(v any) string {
