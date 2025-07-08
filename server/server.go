@@ -15,6 +15,8 @@ func Run(listen string) error {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 		Views:                 engine,
+		ProxyHeader:           fiber.HeaderXForwardedFor,
+		TrustedProxies:        []string{"127.0.0.1", "::1"},
 	})
 
 	admin := app.Group("/admin")
